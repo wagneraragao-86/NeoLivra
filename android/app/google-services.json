@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235202937843",
+    "project_id": "neolivra",
+    "storage_bucket": "neolivra.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235202937843:android:fa5e91d13699fe979b4886",
+        "android_client_info": {
+          "package_name": "com.example.neolivra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdd3nNZ2u3nv3NDujB4edm0BgIKUJYYAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

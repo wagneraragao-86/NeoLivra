@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService {
@@ -5,6 +6,8 @@ class SettingsService {
   static const _ignoreSuperKey = 'ignore_super';
   static const _ignoreSubKey = 'ignore_sub';
   static const _volume   = 'volume';
+  static const _themeKey = 'is_dark';
+  static const _voiceKey = 'voice';
 
   Future<void> saveSettings(
       double rate, 
@@ -12,13 +15,25 @@ class SettingsService {
       bool ignoreSub, 
       double volume, 
       String voice,
+      bool is_dark,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_speechRateKey, rate);
     await prefs.setBool(_ignoreSuperKey, ignoreSuper);
     await prefs.setBool(_ignoreSubKey, ignoreSub);
     await prefs.setDouble(_volume, volume);
-    await prefs.setString('voice', voice);
+    await prefs.setString(_voiceKey, voice);
+    await prefs.setBool(_themeKey, is_dark);
+   }
+
+  Future<void> saveTheme(bool isDark) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_dark', isDark);
+  }
+
+  Future<bool> loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('is_dark') ?? true;
   }
 
   Future<Map<String, dynamic>> loadSettings() async {

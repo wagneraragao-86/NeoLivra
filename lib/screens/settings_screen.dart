@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import '../config/settings_service.dart';
 import 'package:flutter/foundation.dart';
+import '../theme/app_theme.dart';
+import '../theme/theme_controller.dart';
+import '../main.dart';
+import '../controllers/app_controller.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -19,6 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool ignoreSub = true;
   List<Map<String, dynamic>> voices = [];
   String selectedVoice = 'default';
+  bool isDarkMode = true;
 
   String getVoiceName(Map<String, dynamic> voice) {
     final name = voice['name'].toString().toLowerCase();
@@ -36,41 +41,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
     loadVoices();
   }
 
-Future<void> loadVoices() async {
-  final flutterTts = FlutterTts();
+  Future<void> loadVoices() async {
+    final flutterTts = FlutterTts();
 
-  dynamic data;
+    dynamic data;
 
-  try {
-    data = await flutterTts.getVoices; // ← CORRETO
-  } catch (e) {
-    print("Erro ao buscar vozes: $e");
-    return;
+    try {
+      data = await flutterTts.getVoices; // ← CORRETO
+    } catch (e) {
+      print("Erro ao buscar vozes: $e");
+      return;
+    }
+
+    print("VOZES RAW: $data");
+
+    if (data == null) return;
+
+    final ptVoices = List<Map<String, dynamic>>.from(data)
+        .where(
+          (v) =>
+              v['locale'] != null &&
+              v['locale'].toString().toLowerCase().contains('pt'),
+        )
+        .toList();
+
+    setState(() {
+      voices = ptVoices;
+    });
   }
-
-  print("VOZES RAW: $data");
-
-  if (data == null) return;
-
-  final ptVoices = List<Map<String, dynamic>>.from(data)
-      .where((v) =>
-          v['locale'] != null &&
-          v['locale'].toString().toLowerCase().contains('pt'))
-      .toList();
-
-  setState(() {
-    voices = ptVoices;
-  });
-}
 
   void load() async {
     final data = await service.loadSettings();
+    final theme = await service.loadTheme();
+
     setState(() {
       speechRate = data["rate"];
       ignoreSuper = data["ignoreSuper"];
       ignoreSub = data["ignoreSub"];
       volume = data["volume"];
       selectedVoice = data["voice"] ?? 'default';
+      isDarkMode = theme;
     });
   }
 
@@ -81,6 +91,7 @@ Future<void> loadVoices() async {
       ignoreSub,
       volume,
       selectedVoice,
+      isDarkMode,
     );
     ScaffoldMessenger.of(
       context,
@@ -90,78 +101,107 @@ Future<void> loadVoices() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Configurações de Leitura')),
+      appBar: AppBar(title: const Text('Configurações')),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
+        child: ListView(
           children: [
-            const Text('Velocidade da voz'),
-            Slider(
-              value: speechRate,
-              min: 0.5,
-              max: 2.0,
-              divisions: 6,
-              label: speechRate.toString(),
-              onChanged: (value) {
-                setState(() => speechRate = value);
-              },
-            ),
-            const Text('Volume da voz'),
-            Slider(
-              value: volume,
-              min: 0.0,
-              max: 1.0,
-              divisions: 20,
-              label: volume.toString(),
-              onChanged: (value) {
-                setState(() => volume = value);
-              },
-            ),
-            DropdownButtonFormField<String>(
-              value: voices.any((v) => v['name'] == selectedVoice)
-                  ? selectedVoice
-                  : 'default',
-              decoration: const InputDecoration(
-                labelText: 'Tipo de voz',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem(
-                  value: 'default',
-                  child: Text('Padrão do sistema'),
-                ),
-
-                ...voices.map(
-                  (voice) => DropdownMenuItem(
-                    value: voice['name'],
-                    child: Text("${voice['name']} (${voice['locale']})"),
+            // 🔊 VELOCIDADE
+            _buildCard(
+              title: "Velocidade da voz",
+              child: Column(
+                children: [
+                  Slider(
+                    value: speechRate,
+                    min: 0.2,
+                    max: 1.0,
+                    divisions: 8,
+                    label: speechRate.toStringAsFixed(1),
+                    onChanged: (value) {
+                      setState(() => speechRate = value);
+                    },
                   ),
-                ),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  selectedVoice = value!;
-                });
-              },
+                ],
+              ),
             ),
-            SwitchListTile(
-              title: const Text('Ignorar sobrescrito'),
-              value: ignoreSuper,
-              onChanged: (value) {
-                setState(() => ignoreSuper = value);
-              },
+
+            const SizedBox(height: 12),
+
+            // 🎚️ OPÇÕES
+            _buildCard(
+              title: "Leitura",
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: const Text('Ignorar sobrescrito'),
+                    value: ignoreSuper,
+                    onChanged: (value) {
+                      setState(() => ignoreSuper = value);
+                    },
+                  ),
+                  SwitchListTile(
+                    title: const Text('Ignorar subescrito'),
+                    value: ignoreSub,
+                    onChanged: (value) {
+                      setState(() => ignoreSub = value);
+                    },
+                  ),
+                ],
+              ),
             ),
-            SwitchListTile(
-              title: const Text('Ignorar subescrito'),
-              value: ignoreSub,
-              onChanged: (value) {
-                setState(() => ignoreSub = value);
-              },
+
+            const SizedBox(height: 12),
+
+            // 🎨 TEMA
+            _buildCard(
+              title: "Tema",
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: const Text("Modo escuro"),
+                    value: isDarkMode,
+                    onChanged: (value) async {
+                      setState(() => isDarkMode = value);
+
+                      await service.saveTheme(value);
+
+                    },
+                  ),
+                ],
+              ),
             ),
+
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: save, child: const Text('Salvar')),
+
+            // 💾 BOTÃO SALVAR
+            ElevatedButton(
+              onPressed: save,
+              child: const Text('Salvar configurações'),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCard({required String title, required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          child,
+        ],
       ),
     );
   }

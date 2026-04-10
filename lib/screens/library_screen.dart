@@ -18,8 +18,6 @@ class LibraryScreen extends StatefulWidget {
 }
 
 class _LibraryScreenState extends State<LibraryScreen> {
-
-
   Future<void> importarLivro() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -86,65 +84,148 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.bar_chart),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => StatsScreen()),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Minha Biblioteca"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => StatsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: importarLivro,
+        child: const Icon(Icons.add),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: StreamBuilder(
+          stream: FirestoreService().listarLivros(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return _buildEmptyState();
+            }
+
+            final docs = snapshot.data!.docs;
+
+            return ListView.builder(
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final livro = docs[index];
+
+                return _buildBookCard(livro);
+              },
             );
           },
         ),
-      ],
-    ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: importarLivro,
-      child: const Icon(Icons.add),
-    ),
-    body: StreamBuilder<QuerySnapshot>(
-      stream: FirestoreService().listarLivros(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      ),
+    );
+  }
+  Widget _buildBookCard(dynamic livro) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ReaderScreen(
+              book: Book(
+                id: livro.id,
+                titulo: livro['titulo'],
+                autor: livro['autor'],
+                conteudo: livro['conteudo']
+              ),
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.03),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.05),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.greenAccent.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.menu_book,
+                color: Colors.greenAccent,
+                size: 28,
+              ),
+            ),
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text("Nenhum livro encontrado"));
-        }
+            const SizedBox(width: 16),
 
-        final docs = snapshot.data!.docs;
-
-        return ListView.builder(
-          itemCount: docs.length,
-          itemBuilder: (context, index) {
-            final livro = docs[index];
-
-            return ListTile(
-              title: Text(livro['titulo'] ?? 'Sem título'),
-              subtitle: Text(livro['autor'] ?? 'Sem Autor'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ReaderScreen(
-                      book: Book(
-                        id: livro.id,
-                        titulo: livro['titulo'],
-                        autor: livro['autor'],
-                        conteudo: livro['conteudo'],
-                      ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    livro['titulo'],
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  );
-                },
-              );
-            },
-          );
-        },
+                  const SizedBox(height: 4),
+                  Text(
+                    livro['autor'],
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+
+                  const Icon(Icons.arrow_forward_ios, size: 16)
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.menu_book,
+            size: 80,
+            color: Colors.white.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "Nenhum livro ainda",
+            style: TextStyle(fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Toque no + para adicionar",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
       ),
     );
   }

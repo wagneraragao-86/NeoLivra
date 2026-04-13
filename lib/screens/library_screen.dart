@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:neolivra/theme/app_theme.dart';
 import '../models/book.dart';
 import 'reader_screen.dart';
 import 'book_metadata_screen.dart';
@@ -85,53 +86,59 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Minha Biblioteca"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bar_chart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => StatsScreen()),
+    return Container(
+      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+
+        appBar: AppBar(
+          title: const Text("Minha Biblioteca"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.bar_chart),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => StatsScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: importarLivro,
+          child: const Icon(Icons.add),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(12),
+          child: StreamBuilder(
+            stream: FirestoreService().listarLivros(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return _buildEmptyState();
+              }
+
+              final docs = snapshot.data!.docs;
+
+              return ListView.builder(
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  final livro = docs[index];
+
+                  return _buildBookCard(livro);
+                },
               );
             },
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: importarLivro,
-        child: const Icon(Icons.add),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: StreamBuilder(
-          stream: FirestoreService().listarLivros(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return _buildEmptyState();
-            }
-
-            final docs = snapshot.data!.docs;
-
-            return ListView.builder(
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                final livro = docs[index];
-
-                return _buildBookCard(livro);
-              },
-            );
-          },
         ),
       ),
     );
   }
+
   Widget _buildBookCard(dynamic livro) {
     return GestureDetector(
       onTap: () {
@@ -143,7 +150,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 id: livro.id,
                 titulo: livro['titulo'],
                 autor: livro['autor'],
-                conteudo: livro['conteudo']
+                conteudo: livro['conteudo'],
               ),
             ),
           ),
@@ -155,9 +162,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.03),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.05),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
         ),
         child: Row(
           children: [
@@ -190,13 +195,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   const SizedBox(height: 4),
                   Text(
                     livro['autor'],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
 
-                  const Icon(Icons.arrow_forward_ios, size: 16)
+                  const Icon(Icons.arrow_forward_ios, size: 16),
                 ],
               ),
             ),
@@ -205,21 +207,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
       ),
     );
   }
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.menu_book,
-            size: 80,
-            color: Colors.white.withOpacity(0.3),
-          ),
+          Icon(Icons.menu_book, size: 80, color: Colors.white.withOpacity(0.3)),
           const SizedBox(height: 16),
-          const Text(
-            "Nenhum livro ainda",
-            style: TextStyle(fontSize: 18),
-          ),
+          const Text("Nenhum livro ainda", style: TextStyle(fontSize: 18)),
           const SizedBox(height: 8),
           const Text(
             "Toque no + para adicionar",

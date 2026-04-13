@@ -8,9 +8,27 @@ class AppTheme {
   static const Color softGreen = Color(0xFF2EDB6C);
   static const Color white = Color(0xFFFFFFFF);
   static const Color grey = Color(0xFFB0B8C1);
+  static const LinearGradient neonGradient = LinearGradient(
+    colors: [
+      Color(0xFF39FF14),
+      Color(0xFF2EDB6C),
+    ],
+    begin: AlignmentGeometry.topLeft,
+    end: AlignmentGeometry.bottomRight,
+  );
+
+  static const LinearGradient darkGradient = LinearGradient(
+    colors: [
+      Color(0xFF0A1F44),
+      Color(0xFF123A7A),
+    ],
+    begin: AlignmentGeometry.topLeft,
+    end: AlignmentGeometry.bottomRight,
+  );
 
   // 🌙 Tema escuro principal
   static ThemeData darkTheme = ThemeData(
+    useMaterial3: true,
     brightness: Brightness.dark,
 
     scaffoldBackgroundColor: deepBlue,
@@ -23,7 +41,7 @@ class AppTheme {
 
     // 🔝 AppBar
     appBarTheme: const AppBarTheme(
-      backgroundColor: deepBlue,
+      backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: white),
@@ -98,19 +116,20 @@ class AppTheme {
     ),
   );
   static ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
     brightness: Brightness.light,
 
-    scaffoldBackgroundColor: grey,
+    scaffoldBackgroundColor: white,
 
     colorScheme: const ColorScheme.light(
       primary: grey,
-      secondary: white,
+      secondary: grey,
       surface: softGreen,
     ),
 
     // 🔝 AppBar
     appBarTheme: const AppBarTheme(
-      backgroundColor: grey,
+      backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: deepBlue),
@@ -130,7 +149,7 @@ class AppTheme {
       ),
       bodyMedium: TextStyle(
         fontSize: 16,
-        color: softGreen,
+        color: midBlue,
       ),
     ),
 

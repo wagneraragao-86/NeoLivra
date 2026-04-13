@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:neolivra/theme/app_theme.dart';
 
 import '../models/book.dart';
 import '../services/library_storage.dart';
@@ -108,19 +109,19 @@ class _ReaderScreenState extends State<ReaderScreen> {
     }
   }*/
   Future<void> speak() async {
-  final settings = await SettingsService().loadSettings();
+    final settings = await SettingsService().loadSettings();
 
-  await tts.setSpeechRate(settings["rate"]);
-  await tts.setVolume(settings["volume"]);
+    await tts.setSpeechRate(settings["rate"]);
+    await tts.setVolume(settings["volume"]);
 
-  if (settings["voice"] != 'default') {
-    await tts.setVoice({"name": settings["voice"], "locale": "pt-BR"});
+    if (settings["voice"] != 'default') {
+      await tts.setVoice({"name": settings["voice"], "locale": "pt-BR"});
+    }
+
+    await tts.speak(widget.book.conteudo);
+
+    setState(() => isSpeaking = true);
   }
-
-  await tts.speak(widget.book.conteudo);
-
-  setState(() => isSpeaking = true);
-}
 
   Future<void> stop() async {
     await tts.stop();
@@ -169,7 +170,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
         );
       },
     );
-
 
     if (result == null) return;
 
@@ -238,33 +238,37 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.book.titulo)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                controller: scrollController,
+    return Container(
+      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(title: Text(widget.book.titulo)),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
                   child: Text(
-                  widget.book.conteudo,
-                  style: const TextStyle(fontSize: 18),
+                    widget.book.conteudo,
+                    style: const TextStyle(fontSize: 18),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: isSpeaking ? stop : speak,
-              icon: Icon(isSpeaking ? Icons.stop : Icons.play_arrow),
-              label: Text(isSpeaking ? 'Parar' : 'Ouvir'),
-            ),
-            ElevatedButton.icon(
-              onPressed: gerarResumo,
-              icon: const Icon(Icons.auto_awesome),
-              label: const Text("Gerar resumo")
-            ),
-          ],
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: isSpeaking ? stop : speak,
+                icon: Icon(isSpeaking ? Icons.stop : Icons.play_arrow),
+                label: Text(isSpeaking ? 'Parar' : 'Ouvir'),
+              ),
+              ElevatedButton.icon(
+                onPressed: gerarResumo,
+                icon: const Icon(Icons.auto_awesome),
+                label: const Text("Gerar resumo"),
+              ),
+            ],
+          ),
         ),
       ),
     );

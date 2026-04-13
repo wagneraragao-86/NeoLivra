@@ -11,8 +11,8 @@ import 'screens/home_screen.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'theme/theme_controller.dart';
+import 'controllers/app_controller.dart';
 
-final themeController = ThemeController();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -36,18 +36,14 @@ class NeoLivraApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: themeController,
       builder: (context, _) {
-        return AnimatedTheme(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOutCubic,
-          data: themeController.isDark
-            ? AppTheme.darkTheme
-            : AppTheme.lightTheme,
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.darkTheme,
-            themeMode: themeController.themeMode,
-            home: const HomeScreen(),
-          ),
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeController.isDark
+            ? ThemeMode.dark
+            : ThemeMode.light,
+          home: HomeScreen(),
         );
       },
     );

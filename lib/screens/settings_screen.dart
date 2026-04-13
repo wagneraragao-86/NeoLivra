@@ -4,7 +4,6 @@ import '../config/settings_service.dart';
 import 'package:flutter/foundation.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_controller.dart';
-import '../main.dart';
 import '../controllers/app_controller.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -100,85 +99,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Configurações')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            // 🔊 VELOCIDADE
-            _buildCard(
-              title: "Velocidade da voz",
-              child: Column(
-                children: [
-                  Slider(
-                    value: speechRate,
-                    min: 0.2,
-                    max: 1.0,
-                    divisions: 8,
-                    label: speechRate.toStringAsFixed(1),
-                    onChanged: (value) {
-                      setState(() => speechRate = value);
-                    },
-                  ),
-                ],
+    return Container(
+      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(title: const Text('Configurações')),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ListView(
+            children: [
+              // 🔊 VELOCIDADE
+              _buildCard(
+                title: "Velocidade da voz",
+                child: Column(
+                  children: [
+                    Slider(
+                      value: speechRate,
+                      min: 0.2,
+                      max: 1.0,
+                      divisions: 8,
+                      label: speechRate.toStringAsFixed(1),
+                      onChanged: (value) {
+                        setState(() => speechRate = value);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // 🎚️ OPÇÕES
-            _buildCard(
-              title: "Leitura",
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    title: const Text('Ignorar sobrescrito'),
-                    value: ignoreSuper,
-                    onChanged: (value) {
-                      setState(() => ignoreSuper = value);
-                    },
-                  ),
-                  SwitchListTile(
-                    title: const Text('Ignorar subescrito'),
-                    value: ignoreSub,
-                    onChanged: (value) {
-                      setState(() => ignoreSub = value);
-                    },
-                  ),
-                ],
+              // 🎚️ OPÇÕES
+              _buildCard(
+                title: "Leitura",
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: const Text('Ignorar sobrescrito'),
+                      value: ignoreSuper,
+                      onChanged: (value) {
+                        setState(() => ignoreSuper = value);
+                      },
+                    ),
+                    SwitchListTile(
+                      title: const Text('Ignorar subescrito'),
+                      value: ignoreSub,
+                      onChanged: (value) {
+                        setState(() => ignoreSub = value);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // 🎨 TEMA
-            _buildCard(
-              title: "Tema",
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    title: const Text("Modo escuro"),
-                    value: isDarkMode,
-                    onChanged: (value) async {
-                      setState(() => isDarkMode = value);
-
-                      await service.saveTheme(value);
-
-                    },
-                  ),
-                ],
+              // 🎨 TEMA
+              _buildCard(
+                title: "Tema",
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: const Text("Modo escuro"),
+                      value: isDarkMode,
+                      onChanged: (value) {
+                        themeController.toggleTheme(value);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // 💾 BOTÃO SALVAR
-            ElevatedButton(
-              onPressed: save,
-              child: const Text('Salvar configurações'),
-            ),
-          ],
+              // 💾 BOTÃO SALVAR
+              ElevatedButton(
+                onPressed: save,
+                child: const Text('Salvar configurações'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -202,6 +202,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 10),
           child,
         ],
+      ),
+    );
+  }
+}
+class NeonButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const NeonButton({
+    super.key,
+    required this.text,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppTheme.neonGradient,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.softGreen.withOpacity(0.6),
+            blurRadius: 12,
+            spreadRadius: 1,
+          )
+        ],
+      ),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+        ),
+        onPressed: onPressed,
+        child: Text(text),
       ),
     );
   }

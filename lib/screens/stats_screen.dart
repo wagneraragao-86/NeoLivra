@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:neolivra/theme/app_theme.dart';
 import '../services/stats_storage.dart';
 import '../models/reading_stats.dart';
 
@@ -41,44 +42,43 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     if (stats == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final spots = gerarPontos();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text("Seu progresso")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text("Minutos lidos: ${stats!.totalMinutes}"),
-            Text("Livros abertos: ${stats!.booksOpened}"),
-            Text("Streak: ${stats!.streakDays} dias"),
-            const SizedBox(height: 20),
+    return Container(
+      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(title: const Text("Seu progresso")),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Text("Minutos lidos: ${stats!.totalMinutes}"),
+              Text("Livros abertos: ${stats!.booksOpened}"),
+              Text("Streak: ${stats!.streakDays} dias"),
+              const SizedBox(height: 20),
 
-            const Text("Leitura por dia"),
-            const SizedBox(height: 10),
+              const Text("Leitura por dia"),
+              const SizedBox(height: 10),
 
-            SizedBox(
-              height: 200,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(show: false),
-                  borderData: FlBorderData(show: true),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                    ),
-                  ],
+              SizedBox(
+                height: 200,
+                child: LineChart(
+                  LineChartData(
+                    gridData: FlGridData(show: true),
+                    titlesData: FlTitlesData(show: false),
+                    borderData: FlBorderData(show: true),
+                    lineBarsData: [
+                      LineChartBarData(spots: spots, isCurved: true),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

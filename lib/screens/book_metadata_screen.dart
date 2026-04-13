@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neolivra/theme/app_theme.dart';
 import '../models/book.dart';
 
 class BookMetadataScreen extends StatefulWidget {
@@ -30,26 +31,26 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Dados do Livro")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: "Título"),
-            ),
-            TextField(
-              controller: authorController,
-              decoration: const InputDecoration(labelText: "Autor"),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: salvar,
-              child: const Text("Salvar"),
-            )
-          ],
+    return Container(
+      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Dados do Livro")),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: "Título"),
+              ),
+              TextField(
+                controller: authorController,
+                decoration: const InputDecoration(labelText: "Autor"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: salvar, child: const Text("Salvar")),
+            ],
+          ),
         ),
       ),
     );

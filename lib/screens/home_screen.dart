@@ -8,95 +8,96 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('NeoLivra'),
-        centerTitle: true,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // 👋 Header
-          const Text(
-            "Olá 👋",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const Text(
-            "O que vamos ler hoje?",
-            style: TextStyle(color: Colors.white60),
-          ),
-
-          const SizedBox(height: 24),
-
-          // 📚 Card principal
-          _mainCard(
-            icon: Icons.menu_book,
-            title: "Abrir Biblioteca",
-            subtitle: "Acesse seus livros",
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const LibraryScreen()),
-              );
-            },
-          ),
-
-          const SizedBox(height: 16),
-
-          // ⚡ Ações rápidas
-          const Text(
-            "Ações rápidas",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _actionButton(
-                icon: Icons.auto_awesome,
-                label: "Resumos",
-                onTap: () {},
-              ),
-              _actionButton(
-                icon: Icons.volume_up,
-                label: "Ouvir",
-                onTap: () {},
-              ),
-              _actionButton(
-                icon: Icons.settings,
-                label: "Config",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                  );
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // 🧠 Últimos resumos (placeholder)
-          const Text(
-            "Últimos resumos",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-
-          const SizedBox(height: 12),
-
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+    return Container(
+      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(title: const Text('NeoLivra'), centerTitle: true),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // 👋 Header
+            const Text(
+              "Olá 👋",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            child: const ListTile(
-              title: Text("Nenhum resumo ainda"),
-              subtitle: Text("Seus resumos aparecerão aqui"),
+            const Text(
+              "O que vamos ler hoje?",
+              style: TextStyle(color: Colors.white60),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 24),
+
+            // 📚 Card principal
+            _mainCard(
+              icon: Icons.menu_book,
+              title: "Abrir Biblioteca",
+              subtitle: "Acesse seus livros",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LibraryScreen()),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // ⚡ Ações rápidas
+            const Text(
+              "Ações rápidas",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _actionButton(
+                  icon: Icons.auto_awesome,
+                  label: "Resumos",
+                  onTap: () {},
+                ),
+                _actionButton(
+                  icon: Icons.volume_up,
+                  label: "Ouvir",
+                  onTap: () {},
+                ),
+                _actionButton(
+                  icon: Icons.settings,
+                  label: "Config",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // 🧠 Últimos resumos (placeholder)
+            const Text(
+              "Últimos resumos",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
+
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const ListTile(
+                title: Text("Nenhum resumo ainda"),
+                subtitle: Text("Seus resumos aparecerão aqui"),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -134,7 +135,7 @@ class HomeScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(subtitle, style: const TextStyle(color: Colors.white70)),
+                Text(subtitle, style: const TextStyle(color: Colors.white)),
               ],
             ),
           ],
@@ -155,7 +156,7 @@ class HomeScreen extends StatelessWidget {
           onTap: onTap,
           child: CircleAvatar(
             radius: 28,
-            backgroundColor: Colors.white12,
+            backgroundColor: Colors.grey,
             child: Icon(icon, size: 26),
           ),
         ),

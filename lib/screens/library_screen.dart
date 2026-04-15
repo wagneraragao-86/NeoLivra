@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:neolivra/theme/app_theme.dart';
+import 'package:neolivra/theme/app_Background.dart';
 import '../models/book.dart';
 import 'reader_screen.dart';
 import 'book_metadata_screen.dart';
@@ -86,8 +85,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+    return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
 

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import '../config/settings_service.dart';
-import 'package:flutter/foundation.dart';
-import '../theme/app_theme.dart';
-import '../theme/theme_controller.dart';
 import '../controllers/app_controller.dart';
+import '../theme/app_Background.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -99,8 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+    return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(title: const Text('Configurações')),
@@ -218,18 +215,7 @@ class NeonButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: AppTheme.neonGradient,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.softGreen.withOpacity(0.6),
-            blurRadius: 12,
-            spreadRadius: 1,
-          )
-        ],
-      ),
+    return AppBackground(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,

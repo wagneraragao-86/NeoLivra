@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:neolivra/main.dart';
 import '../config/settings_service.dart';
 
 class ThemeController extends ChangeNotifier {

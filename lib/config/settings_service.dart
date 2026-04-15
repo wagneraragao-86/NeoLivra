@@ -15,7 +15,7 @@ class SettingsService {
       bool ignoreSub, 
       double volume, 
       String voice,
-      bool is_dark,
+      bool isDark,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_speechRateKey, rate);
@@ -23,7 +23,7 @@ class SettingsService {
     await prefs.setBool(_ignoreSubKey, ignoreSub);
     await prefs.setDouble(_volume, volume);
     await prefs.setString(_voiceKey, voice);
-    await prefs.setBool(_themeKey, is_dark);
+    await prefs.setBool(_themeKey, isDark);
    }
 
   Future<void> saveTheme(bool isDark) async {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:neolivra/theme/app_theme.dart';
 import '../models/book.dart';
+import '../theme/app_Background.dart';
 
 class BookMetadataScreen extends StatefulWidget {
   final String content;
@@ -31,9 +31,9 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+    return AppBackground(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(title: const Text("Dados do Livro")),
         body: Padding(
           padding: const EdgeInsets.all(16),

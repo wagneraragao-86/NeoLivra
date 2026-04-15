@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
 
 class FirestoreService {
   final _db = FirebaseFirestore.instance;
-  final _auth = FirebaseAuth.instance;
+  final _auth = AuthService();
 
-  String get userId => _auth.currentUser!.uid;
+  String get userId => _auth.user!.uid;
 
   Future<void> salvarLivro({
     required String titulo,

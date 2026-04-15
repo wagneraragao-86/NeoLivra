@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:neolivra/config/settings_service.dart';
 import 'package:neolivra/screens/library_screen.dart';
 import 'package:neolivra/controllers/app_controller.dart';
+import 'package:neolivra/screens/login_screen.dart';
+import 'package:neolivra/screens/profile_screen.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'firebase_options.dart';
@@ -23,7 +25,7 @@ void main() async {
 
   // Inicializa Firebase corretamente
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await AuthService().loginAnonimo();
+  AuthService().login;
 
   runApp(const NeoLivraApp());
 }
@@ -43,7 +45,15 @@ class NeoLivraApp extends StatelessWidget {
           themeMode: themeController.isDark
             ? ThemeMode.dark
             : ThemeMode.light,
-          home: HomeScreen(),
+          
+          routes: {
+            '/home': (context) => HomeScreen(),
+            '/login': (context) => LoginScreen(),
+            '/profile': (context) => ProfileScreen(),
+          },
+          home: AuthService().user == null
+            ? LoginScreen()
+            : HomeScreen(),
         );
       },
     );

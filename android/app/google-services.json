@@ -12,7 +12,12 @@
           "package_name": "com.example.neolivra"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "235202937843-uunvq1r1d9g9v182g4ilkpc6a47f8801.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDdd3nNZ2u3nv3NDujB4edm0BgIKUJYYAw"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "235202937843-uunvq1r1d9g9v182g4ilkpc6a47f8801.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "235202937843-ndapfn3f9hp1qsdfin53s8v8v7l4rsut.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.neolivra"
+              }
+            }
+          ]
         }
       }
     }

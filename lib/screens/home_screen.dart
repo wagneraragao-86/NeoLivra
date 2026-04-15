@@ -1,69 +1,92 @@
 import 'package:flutter/material.dart';
+import 'package:neolivra/theme/App_Background.dart';
 import 'library_screen.dart';
 import 'settings_screen.dart';
 import '../theme/app_theme.dart';
+import 'dart:math';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  final PageController _pageController =
+      PageController(viewportFraction: 0.75);
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+    return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(title: const Text('NeoLivra'), centerTitle: true),
+
         body: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           children: [
-            // 👋 Header
-            const Text(
-              "Olá 👋",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              "O que vamos ler hoje?",
-              style: TextStyle(color: Colors.white60),
+
+            // 🔥 HEADER
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      "NeoLivra",
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      "Leia, ouça, compartilhe",
+                      style: TextStyle(color: Colors.white60),
+                    ),
+                  ],
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/profile'),
+                  child: const CircleAvatar(
+                    radius: 22,
+                    child: Icon(Icons.person),
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 24),
 
-            // 📚 Card principal
-            _mainCard(
-              icon: Icons.menu_book,
-              title: "Abrir Biblioteca",
-              subtitle: "Acesse seus livros",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LibraryScreen()),
-                );
-              },
-            ),
+            // 🔥 CONTINUAR LENDO
+            _continueReading(),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 28),
 
-            // ⚡ Ações rápidas
             const Text(
-              "Ações rápidas",
+              "Destaques",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 12),
 
+            _carousel(),
+
+            const SizedBox(height: 28),
+
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _actionButton(
-                  icon: Icons.auto_awesome,
-                  label: "Resumos",
-                  onTap: () {},
+                  icon: Icons.menu_book, 
+                  label: "Biblioteca", 
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LibraryScreen()),
+                    );
+                  },
                 ),
-                _actionButton(
-                  icon: Icons.volume_up,
-                  label: "Ouvir",
-                  onTap: () {},
-                ),
+                _actionButton(icon: Icons.volume_up, label: "Ouvir", onTap: () {}),
                 _actionButton(
                   icon: Icons.settings,
                   label: "Config",
@@ -77,65 +100,16 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
 
-            // 🧠 Últimos resumos (placeholder)
-            const Text(
-              "Últimos resumos",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 12),
-
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const ListTile(
-                title: Text("Nenhum resumo ainda"),
-                subtitle: Text("Seus resumos aparecerão aqui"),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 🔹 Card principal
-  Widget _mainCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Ink(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            colors: [AppTheme.midBlue, AppTheme.neonGreen],
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 40, color: Colors.white),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(subtitle, style: const TextStyle(color: Colors.white)),
+                _chip("Tecnologia"),
+                _chip("Negócios"),
+                _chip("Ficção"),
+                _chip("Autoajuda"),
               ],
             ),
           ],
@@ -144,25 +118,126 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Botões rápidos
+  // 🔥 CONTINUE READING
+  Widget _continueReading() {
+    return Container(
+      height: 170,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [AppTheme.midBlue, AppTheme.deepBlue],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.neonGreen.withOpacity(0.4),
+            blurRadius: 25,
+          ),
+        ],
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          children: [
+            SizedBox(width: 90),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Continue lendo", style: TextStyle(color: Colors.white70)),
+                  SizedBox(height: 6),
+                  Text(
+                    "Atomic Habits",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 6),
+                  LinearProgressIndicator(value: 0.5),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 🔥 CARROSSEL
+  Widget _carousel() {
+    return SizedBox(
+      height: 200,
+      child: PageView.builder(
+        controller: _pageController,
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return AnimatedBuilder(
+            animation: _pageController,
+            builder: (context, child) {
+              double value = 1;
+
+              if (_pageController.position.haveDimensions) {
+                value = _pageController.page! - index;
+                value = (1 - (value.abs() * 0.3)).clamp(0.7, 1);
+              }
+
+              return Transform.scale(
+                scale: value,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.midBlue,
+                        AppTheme.neonGreen.withOpacity(0.7),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // 🔹 BOTÃO
   Widget _actionButton({
     required IconData icon,
     required String label,
     required VoidCallback onTap,
   }) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: CircleAvatar(
-            radius: 28,
-            backgroundColor: Colors.grey,
-            child: Icon(icon, size: 26),
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, size: 26, color: Colors.white),
+              const SizedBox(height: 8),
+              Text(label),
+            ],
           ),
         ),
-        const SizedBox(height: 6),
-        Text(label),
-      ],
+      ),
+    );
+  }
+
+  Widget _chip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(label),
     );
   }
 }

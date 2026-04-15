@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:neolivra/theme/app_theme.dart';
+import 'package:neolivra/theme/App_Background.dart';
 
 import '../models/book.dart';
 import '../services/library_storage.dart';
@@ -238,8 +238,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+    return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(title: Text(widget.book.titulo)),

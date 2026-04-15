@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:neolivra/theme/app_theme.dart';
+import 'package:neolivra/theme/App_Background.dart';
 import '../services/stats_storage.dart';
 import '../models/reading_stats.dart';
 
@@ -47,8 +47,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
     final spots = gerarPontos();
 
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.darkGradient),
+    return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(title: const Text("Seu progresso")),

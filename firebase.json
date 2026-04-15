@@ -1,1 +1,24 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"neolivra","appId":"1:235202937843:android:fa5e91d13699fe979b4886","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"neolivra","configurations":{"android":"1:235202937843:android:fa5e91d13699fe979b4886","ios":"1:235202937843:ios:440b00a77afff6559b4886","macos":"1:235202937843:ios:440b00a77afff6559b4886","web":"1:235202937843:web:b3884381a70db7009b4886"}}}}}}
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "neolivra",
+                    "appId": "1:235202937843:android:fa5e91d13699fe979b4886",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "neolivra",
+                    "configurations": {
+                        "android": "1:235202937843:android:fa5e91d13699fe979b4886",
+                        "ios": "1:235202937843:ios:440b00a77afff6559b4886",
+                        "macos": "1:235202937843:ios:440b00a77afff6559b4886",
+                        "web": "1:235202937843:web:b3884381a70db7009b4886"
+                    }
+                }
+            }
+        }
+    }
+}

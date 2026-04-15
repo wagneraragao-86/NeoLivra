@@ -8,10 +8,10 @@ class AppTheme {
   static const Color softGreen = Color(0xFF2EDB6C);
   static const Color white = Color(0xFFFFFFFF);
   static const Color grey = Color(0xFFB0B8C1);
-  static const LinearGradient neonGradient = LinearGradient(
+  static const LinearGradient lightGradient = LinearGradient(
     colors: [
-      Color(0xFF39FF14),
-      Color(0xFF2EDB6C),
+      Color(0xFFFFFFFF),
+      Color(0xFFB0B8C1),
     ],
     begin: AlignmentGeometry.topLeft,
     end: AlignmentGeometry.bottomRight,
@@ -34,9 +34,9 @@ class AppTheme {
     scaffoldBackgroundColor: deepBlue,
 
     colorScheme: const ColorScheme.dark(
-      primary: midBlue,
-      secondary: neonGreen,
-      surface: midBlue,
+      //primary: midBlue,
+      //secondary: neonGreen,
+      //surface: midBlue,
     ),
 
     // 🔝 AppBar
@@ -111,8 +111,8 @@ class AppTheme {
 
     // 🔄 Switch
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all(neonGreen),
-      trackColor: MaterialStateProperty.all(softGreen.withOpacity(0.5)),
+      thumbColor: WidgetStateProperty.all(neonGreen),
+      trackColor: WidgetStateProperty.all(softGreen.withOpacity(0.5)),
     ),
   );
   static ThemeData lightTheme = ThemeData(
@@ -199,8 +199,8 @@ class AppTheme {
 
     // 🔄 Switch
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all(deepBlue),
-      trackColor: MaterialStateProperty.all(midBlue.withOpacity(0.5)),
+      thumbColor: WidgetStateProperty.all(deepBlue),
+      trackColor: WidgetStateProperty.all(midBlue.withOpacity(0.5)),
     ),
   );  
 }

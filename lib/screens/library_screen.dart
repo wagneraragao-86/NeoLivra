@@ -1,14 +1,19 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:neolivra/theme/app_Background.dart';
-import '../models/book.dart';
-import 'reader_screen.dart';
-import 'book_metadata_screen.dart';
-import '../utils/text_decoder.dart';
-import 'stats_screen.dart';
-import '../services/firestore_service.dart';
-import 'dart:typed_data';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:xml/xml.dart';
+
+import '../models/book.dart';
+import '../services/firestore_service.dart';
+import '../utils/text_decoder.dart';
+import 'book_metadata_screen.dart';
+import 'reader_screen.dart';
+import 'stats_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -21,7 +26,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Future<void> importarLivro() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['txt', 'pdf'],
+      allowedExtensions: ['txt', 'pdf', 'epub'],
       withData: true,
     );
 
@@ -33,11 +38,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
     String conteudo = '';
 
     try {
-      // 📄 TXT
+      // TXT
       if (nome.endsWith('.txt')) {
         conteudo = await TextDecoder.decode(file.bytes!);
       }
-      // 📕 PDF (WEB)
+      // PDF (WEB)
       else if (nome.endsWith('.pdf')) {
         Uint8List bytes = file.bytes!;
 
@@ -50,6 +55,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
         document.dispose();
         conteudo = texto;
+      }
+      // EPUB
+      else if (nome.endsWith('.epub')) {
+        conteudo = await _extrairTextoEpub(file.bytes!);
       }
 
       // tela de metadados
@@ -74,6 +83,121 @@ class _LibraryScreenState extends State<LibraryScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text("Erro ao importar arquivo")));
     }
+  }
+
+  Future<String> _extrairTextoEpub(Uint8List bytes) async {
+    final archive = ZipDecoder().decodeBytes(bytes);
+    final containerXml = _readArchiveText(
+      archive,
+      'META-INF/container.xml',
+    );
+
+    if (containerXml == null) {
+      throw Exception('Arquivo EPUB inválido: container ausente.');
+    }
+
+    final container = XmlDocument.parse(containerXml);
+    final rootfile = container
+        .findAllElements('rootfile')
+        .cast<XmlElement>()
+        .map((element) => element.getAttribute('full-path'))
+        .whereType<String>()
+        .firstOrNull;
+
+    if (rootfile == null) {
+      throw Exception('Arquivo EPUB inválido: OPF não encontrado.');
+    }
+
+    final opfXml = _readArchiveText(archive, rootfile);
+    if (opfXml == null) {
+      throw Exception('Arquivo EPUB inválido: manifesto ausente.');
+    }
+
+    final opf = XmlDocument.parse(opfXml);
+    final manifest = <String, String>{};
+
+    for (final item in opf.findAllElements('item')) {
+      final id = item.getAttribute('id');
+      final href = item.getAttribute('href');
+      if (id != null && href != null) {
+        manifest[id] = href;
+      }
+    }
+
+    final spineIds = opf
+        .findAllElements('itemref')
+        .map((element) => element.getAttribute('idref'))
+        .whereType<String>()
+        .toList();
+
+    final basePath = rootfile.contains('/')
+        ? rootfile.substring(0, rootfile.lastIndexOf('/') + 1)
+        : '';
+
+    final buffer = StringBuffer();
+
+    for (final id in spineIds) {
+      final href = manifest[id];
+      if (href == null) {
+        continue;
+      }
+
+      final fullPath = _resolveZipPath(basePath, href);
+      final chapter = _readArchiveText(archive, fullPath);
+      if (chapter == null) {
+        continue;
+      }
+
+      final text = _stripHtml(chapter).trim();
+      if (text.isNotEmpty) {
+        buffer.writeln(text);
+        buffer.writeln();
+      }
+    }
+
+    final conteudo = buffer.toString().trim();
+    if (conteudo.isEmpty) {
+      throw Exception('Não foi possível extrair texto do EPUB.');
+    }
+
+    return conteudo;
+  }
+
+  String? _readArchiveText(Archive archive, String path) {
+    for (final file in archive.files) {
+      if (file.name == path) {
+        final content = file.content;
+        if (content is List<int>) {
+          return _decodeBytes(content);
+        }
+        if (content is String) {
+          return content;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  String _decodeBytes(List<int> bytes) {
+    try {
+      return utf8.decode(bytes, allowMalformed: true);
+    } catch (_) {
+      return latin1.decode(bytes);
+    }
+  }
+
+  String _resolveZipPath(String basePath, String relativePath) {
+    final resolved = Uri.parse(basePath).resolve(relativePath).path;
+    return resolved.startsWith('/') ? resolved.substring(1) : resolved;
+  }
+
+  String _stripHtml(String input) {
+    final withoutScripts = input
+        .replaceAll(RegExp(r'(?is)<script[^>]*>.*?</script>'), ' ')
+        .replaceAll(RegExp(r'(?is)<style[^>]*>.*?</style>'), ' ');
+    final text = withoutScripts.replaceAll(RegExp(r'<[^>]+>'), ' ');
+    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
   }
 
   void abrirLivro(Book book) {
@@ -222,5 +346,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ],
       ),
     );
+  }
+}
+
+extension FirstOrNullExtension<T> on Iterable<T> {
+  T? get firstOrNull {
+    for (final item in this) {
+      return item;
+    }
+    return null;
   }
 }

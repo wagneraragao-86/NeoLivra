@@ -4,6 +4,7 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   User? get user => _auth.currentUser;
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<User?> login(String email, String password) async {
     final result = await _auth.signInWithEmailAndPassword(
@@ -18,7 +19,7 @@ class AuthService {
       email: email, 
       password: password
     );
-    return null;
+    return result.user;
   }
   
   Future<void> logout() async {

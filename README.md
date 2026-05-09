@@ -2,6 +2,23 @@
 
 A new Flutter project.
 
+## Chaves de API
+
+Crie um arquivo `.env` local usando `.env.example` como referencia. Nao commite o
+`.env`.
+
+Para rodar informando as chaves:
+
+```bash
+flutter run --dart-define-from-file=.env
+```
+
+Para build:
+
+```bash
+flutter build apk --dart-define-from-file=.env
+```
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

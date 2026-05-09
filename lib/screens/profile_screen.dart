@@ -95,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             const SizedBox(height: 20),
 
-            // 👤 Avatar
+            // Avatar
             GestureDetector(
               onTap: pickImage,
               child: CircleAvatar(
@@ -117,12 +117,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 20),
 
-            // 📧 Email
+            // Email
             Text(user.email!, style: const TextStyle(fontSize: 16)),
 
             const SizedBox(height: 20),
 
-            // ✏️ Nome
+            // Nome
             TextField(
               controller: nameController,
               decoration: const InputDecoration(
@@ -137,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const Spacer(),
 
-            // 🚪 Logout
+            // Logout
             ElevatedButton(
               onPressed: () async {
                 await AuthService().logout();

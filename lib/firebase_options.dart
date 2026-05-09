@@ -44,7 +44,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyChddiTZn_RsMeTVe2HYILOP1NhNuOjDik',
+    apiKey: String.fromEnvironment('FIREBASE_WEB_API_KEY'),
     appId: '1:235202937843:web:b3884381a70db7009b4886',
     messagingSenderId: '235202937843',
     projectId: 'neolivra',
@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDdd3nNZ2u3nv3NDujB4edm0BgIKUJYYAw',
+    apiKey: String.fromEnvironment('FIREBASE_ANDROID_API_KEY'),
     appId: '1:235202937843:android:fa5e91d13699fe979b4886',
     messagingSenderId: '235202937843',
     projectId: 'neolivra',
@@ -62,7 +62,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCZCP0R35_8G3Viv5r0_lJ86t0-8WpCzxs',
+    apiKey: String.fromEnvironment('FIREBASE_IOS_API_KEY'),
     appId: '1:235202937843:ios:440b00a77afff6559b4886',
     messagingSenderId: '235202937843',
     projectId: 'neolivra',
@@ -71,12 +71,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCZCP0R35_8G3Viv5r0_lJ86t0-8WpCzxs',
+    apiKey: String.fromEnvironment('FIREBASE_MACOS_API_KEY'),
     appId: '1:235202937843:ios:440b00a77afff6559b4886',
     messagingSenderId: '235202937843',
     projectId: 'neolivra',
     storageBucket: 'neolivra.firebasestorage.app',
     iosBundleId: 'com.example.neolivra',
   );
-
 }

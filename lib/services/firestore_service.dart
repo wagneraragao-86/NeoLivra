@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/book.dart';
 import 'auth_service.dart';
 
 class FirestoreService {
@@ -33,6 +34,29 @@ class FirestoreService {
         .collection('livros')
         .orderBy('criadoEm', descending: true)
         .snapshots();
+  }
+
+  Future<Book?> buscarLivroPorId(String livroId) async {
+    final doc = await _db
+        .collection('usuarios')
+        .doc(userId)
+        .collection('livros')
+        .doc(livroId)
+        .get();
+
+    if (!doc.exists || doc.data() == null) {
+      return null;
+    }
+
+    final data = doc.data()!;
+
+    return Book(
+      id: doc.id,
+      titulo: data['titulo'] ?? '',
+      autor: data['autor'] ?? '',
+      conteudo: data['conteudo'] ?? '',
+      position: data['progresso'] ?? 0,
+    );
   }
 
   Future<void> atualizarProgresso({

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.neolivra_100"
+    namespace = "com.example.neolivra"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

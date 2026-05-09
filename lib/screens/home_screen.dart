@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:neolivra/theme/App_Background.dart';
-import 'library_screen.dart';
-import 'settings_screen.dart';
+
+import '../models/reading_stats.dart';
+import '../services/firestore_service.dart';
+import '../services/stats_storage.dart';
 import '../theme/app_theme.dart';
-import 'dart:math';
+import 'library_screen.dart';
+import 'reader_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,9 +17,43 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final PageController _pageController = PageController(viewportFraction: 0.75);
+  final StatsStorage _statsStorage = StatsStorage();
 
-  final PageController _pageController =
-      PageController(viewportFraction: 0.75);
+  late Future<ReadingStats> _statsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _statsFuture = _statsStorage.load();
+  }
+
+  Future<void> _refreshStats() async {
+    setState(() {
+      _statsFuture = _statsStorage.load();
+    });
+  }
+
+  Future<void> _abrirUltimoLivro(ReadingStats stats) async {
+    if (stats.lastOpenedBookId.isEmpty) {
+      return;
+    }
+
+    final livro = await FirestoreService().buscarLivroPorId(
+      stats.lastOpenedBookId,
+    );
+
+    if (!mounted || livro == null) {
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ReaderScreen(book: livro)),
+    );
+
+    await _refreshStats();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(title: const Text('NeoLivra'), centerTitle: true),
-
         body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           children: [
-
-            // 🔥 HEADER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -37,11 +72,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: const [
                     Text(
                       "NeoLivra",
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 4),
                     Text(
-                      "Leia, ouça, compartilhe",
+                      "Leia, ouca, compartilhe",
                       style: TextStyle(color: Colors.white60),
                     ),
                   ],
@@ -55,60 +93,65 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
-
-            // 🔥 CONTINUAR LENDO
-            _continueReading(),
-
+            FutureBuilder<ReadingStats>(
+              future: _statsFuture,
+              builder: (context, snapshot) {
+                final stats = snapshot.data;
+                return _continueReading(stats);
+              },
+            ),
             const SizedBox(height: 28),
-
             const Text(
               "Destaques",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 12),
-
             _carousel(),
-
             const SizedBox(height: 28),
-
             Row(
               children: [
                 _actionButton(
-                  icon: Icons.menu_book, 
-                  label: "Biblioteca", 
-                  onTap: () {
-                    Navigator.push(
+                  icon: Icons.menu_book,
+                  label: "Biblioteca",
+                  onTap: () async {
+                    await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const LibraryScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const LibraryScreen(),
+                      ),
                     );
+                    await _refreshStats();
                   },
                 ),
-                _actionButton(icon: Icons.volume_up, label: "Ouvir", onTap: () {}),
+                _actionButton(
+                  icon: Icons.volume_up,
+                  label: "Ouvir",
+                  onTap: () {},
+                ),
                 _actionButton(
                   icon: Icons.settings,
                   label: "Config",
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const SettingsScreen(),
+                      ),
                     );
+                    await _refreshStats();
                   },
                 ),
               ],
             ),
-
             const SizedBox(height: 28),
-
             Wrap(
               spacing: 10,
               runSpacing: 10,
               children: [
                 _chip("Tecnologia"),
-                _chip("Negócios"),
-                _chip("Ficção"),
+                _chip("Negocios"),
+                _chip("Ficcao"),
                 _chip("Autoajuda"),
               ],
             ),
@@ -118,42 +161,141 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔥 CONTINUE READING
-  Widget _continueReading() {
-    return Container(
-      height: 170,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [AppTheme.midBlue, AppTheme.deepBlue],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.neonGreen.withOpacity(0.4),
-            blurRadius: 25,
+  Widget _continueReading(ReadingStats? stats) {
+    final hasBook = stats != null && stats.lastOpenedBookId.isNotEmpty;
+    final progress = (stats?.lastOpenedProgress ?? 0).clamp(0.0, 1.0);
+    final progressPercent = (progress * 100).round();
+
+    return GestureDetector(
+      onTap: hasBook ? () => _abrirUltimoLivro(stats) : null,
+      child: Container(
+        height: 170,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: const LinearGradient(
+            colors: [AppTheme.midBlue, AppTheme.deepBlue],
           ),
-        ],
-      ),
-      child: const Padding(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            SizedBox(width: 90),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Continue lendo", style: TextStyle(color: Colors.white70)),
-                  SizedBox(height: 6),
-                  Text(
-                    "Atomic Habits",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.neonGreen.withOpacity(0.25),
+              blurRadius: 25,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 72,
+                height: 98,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  gradient: LinearGradient(
+                    colors: hasBook
+                        ? [
+                            AppTheme.neonGreen.withOpacity(0.85),
+                            AppTheme.softGreen.withOpacity(0.75),
+                          ]
+                        : [
+                            Colors.white.withOpacity(0.18),
+                            Colors.white.withOpacity(0.08),
+                          ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  SizedBox(height: 6),
-                  LinearProgressIndicator(value: 0.5),
-                ],
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                ),
+                child: Icon(
+                  hasBook ? Icons.menu_book_rounded : Icons.book_outlined,
+                  color: hasBook ? Colors.black : Colors.white70,
+                  size: 34,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hasBook
+                          ? "Continue lendo"
+                          : "Seu ultimo livro vai aparecer aqui",
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      hasBook
+                          ? stats.lastOpenedTitle
+                          : "Abra um livro para começar",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      hasBook ? stats.lastOpenedAuthor : "NeoLivra",
+                      style: const TextStyle(color: Colors.white60),
+                    ),
+                    const SizedBox(height: 12),
+                    _progressBar(progress),
+                    const SizedBox(height: 8),
+                    Text(
+                      hasBook
+                          ? "$progressPercent% concluido"
+                          : "0% concluido",
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _progressBar(double value) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        height: 10,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+        ),
+        child: Stack(
+          children: [
+            FractionallySizedBox(
+              widthFactor: value,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppTheme.neonGreen, AppTheme.softGreen],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                  borderRadius: BorderRadius.circular(999),
+                ),
               ),
             ),
           ],
@@ -162,7 +304,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔥 CARROSSEL
   Widget _carousel() {
     return SizedBox(
       height: 200,
@@ -202,7 +343,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔹 BOTÃO
   Widget _actionButton({
     required IconData icon,
     required String label,

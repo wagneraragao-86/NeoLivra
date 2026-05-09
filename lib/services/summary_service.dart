@@ -1,10 +1,8 @@
 import 'dart:convert';
+import 'package:neolivra/config/api_config.dart';
 import 'package:http/http.dart' as http;
 
 class SummaryService {
-  final String apiKey = "AIzaSyAQoUUmjpDjwmQIVPNzJeYtdtoIAeNt3OU";
-
-
   // 🔹 dividir texto
   List<String> dividirTexto(String texto, int tamanhoMax) {
     List<String> partes = [];
@@ -23,8 +21,10 @@ class SummaryService {
 
   // 🔹 chamada Gemini
   Future<String> resumirParte(String texto, double percentual) async {
+    ApiConfig.validate();
+
     final url =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey";
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${ApiConfig.geminiApiKey}";
 
     final response = await http.post(
       Uri.parse(url),
@@ -35,19 +35,17 @@ class SummaryService {
             "parts": [
               {
                 "text":
-                    "Resuma o texto abaixo em aproximadamente ${(percentual * 100).toInt()}% do tamanho:\n\n$texto"
-              }
-            ]
-          }
-        ]
+                    "Resuma o texto abaixo em aproximadamente ${(percentual * 100).toInt()}% do tamanho:\n\n$texto",
+              },
+            ],
+          },
+        ],
       }),
     );
-    
-    print("RESPOSTA API: ${response.body}");
 
     final data = jsonDecode(response.body);
 
-    if (data == null|| data['candidates'] == null) {
+    if (data == null || data['candidates'] == null) {
       throw Exception("Resposta inválida da API: ${response.body}");
     }
 

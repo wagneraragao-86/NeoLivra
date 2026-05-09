@@ -32,6 +32,10 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+.env
+.env.*
+!.env.example
+lib/config/api_config.dart
 
 # Symbolication related
 app.*.symbols
@@ -43,3 +47,4 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/app/google-services.json

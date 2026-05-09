@@ -43,6 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (user != null) {
         await userService.createUser(uid: user.uid, email: email);
         print("Usuário criado com sucesso!");
+        Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       if (e is FirebaseAuthException) {

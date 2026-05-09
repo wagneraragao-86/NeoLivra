@@ -1,18 +1,13 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neolivra/config/settings_service.dart';
-import 'package:neolivra/screens/library_screen.dart';
-import 'package:neolivra/controllers/app_controller.dart';
 import 'package:neolivra/screens/login_screen.dart';
 import 'package:neolivra/screens/profile_screen.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
-import 'theme/theme_controller.dart';
 import 'controllers/app_controller.dart';
 
 void main() async {
@@ -23,9 +18,7 @@ void main() async {
 
   themeController.setTheme(isDark);
 
-  // Inicializa Firebase corretamente
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  AuthService().login;
 
   runApp(const NeoLivraApp());
 }
@@ -51,9 +44,20 @@ class NeoLivraApp extends StatelessWidget {
             '/login': (context) => LoginScreen(),
             '/profile': (context) => ProfileScreen(),
           },
-          home: AuthService().user == null
-            ? LoginScreen()
-            : HomeScreen(),
+          home: StreamBuilder<User?>(
+            stream: AuthService().authStateChanges,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              return snapshot.data == null
+                  ? const LoginScreen()
+                  : const HomeScreen();
+            },
+          ),
         );
       },
     );

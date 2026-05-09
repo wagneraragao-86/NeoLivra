@@ -30,9 +30,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   bool isSpeaking = false;
   int paginaAtual = 0;
-  String livroId = '';
   double velocidade = 0.5;
   double volume = 0.5;
+  double progressoLeitura = 0;
 
   @override
   void initState() {
@@ -44,17 +44,42 @@ class _ReaderScreenState extends State<ReaderScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients) {
         scrollController.jumpTo(widget.book.position.toDouble());
+        _atualizarProgresso();
       }
     });
 
     scrollController.addListener(() {
       widget.book.position = scrollController.offset.toInt();
+      _atualizarProgresso();
     });
+  }
+
+  void _atualizarProgresso() {
+    if (!scrollController.hasClients) {
+      return;
+    }
+
+    final maxScroll = scrollController.position.maxScrollExtent;
+    if (maxScroll <= 0) {
+      progressoLeitura = 0;
+      paginaAtual = 0;
+      return;
+    }
+
+    final progresso = (scrollController.position.pixels / maxScroll)
+        .clamp(0.0, 1.0);
+
+    progressoLeitura = progresso;
+    paginaAtual = (progressoLeitura * 100).round();
   }
 
   Future<void> registrarAberturaLivro() async {
     final stats = await statsStorage.load();
     stats.booksOpened += 1;
+    stats.lastOpenedBookId = widget.book.id;
+    stats.lastOpenedTitle = widget.book.titulo;
+    stats.lastOpenedAuthor = widget.book.autor;
+    stats.lastOpenedProgress = progressoLeitura;
     await statsStorage.save(stats);
   }
 
@@ -74,6 +99,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
       stats.streakDays += 1;
       stats.lastReadDate = today;
     }
+
+    stats.lastOpenedBookId = widget.book.id;
+    stats.lastOpenedTitle = widget.book.titulo;
+    stats.lastOpenedAuthor = widget.book.autor;
+    stats.lastOpenedProgress = progressoLeitura;
 
     await statsStorage.save(stats);
   }
@@ -229,7 +259,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
       livros[index] = widget.book;
       await storage.salvarLivros(livros);
     }
-    FirestoreService().atualizarProgresso(
+    await FirestoreService().atualizarProgresso(
       livroId: widget.book.id,
       progresso: paginaAtual,
       pontos: 1,
